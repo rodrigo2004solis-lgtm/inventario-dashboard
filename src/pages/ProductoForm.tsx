@@ -88,19 +88,24 @@ export default function ProductoForm() {
     let urlFinal = fotoUrl
 
     if (fotoArchivo) {
-      const nombreArchivo = `${sku}-${Date.now()}.${fotoArchivo.name.split('.').pop()}`
-      const { error: uploadError } = await supabase.storage
-        .from('productos-fotos')
-        .upload(nombreArchivo, fotoArchivo)
+      // Sube la foto a través de la Edge Function "subir-foto", que la
+      // manda a Cloudflare R2 con las credenciales seguras del servidor
+      // (nunca expuestas aquí en el navegador).
+      const formData = new FormData()
+      formData.append('archivo', fotoArchivo)
+      formData.append('sku', sku)
 
-      if (uploadError) {
-        setError('Error al subir la foto: ' + uploadError.message)
+      const { data: funcionData, error: uploadError } = await supabase.functions.invoke('subir-foto', {
+        body: formData,
+      })
+
+      if (uploadError || !funcionData?.url) {
+        setError('Error al subir la foto: ' + (uploadError?.message || 'respuesta inválida del servidor'))
         setGuardando(false)
         return
       }
 
-      const { data: urlData } = supabase.storage.from('productos-fotos').getPublicUrl(nombreArchivo)
-      urlFinal = urlData.publicUrl
+      urlFinal = funcionData.url
     }
 
     const payload = {
