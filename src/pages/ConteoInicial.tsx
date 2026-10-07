@@ -409,9 +409,11 @@ export default function ConteoInicial() {
                 >
                   <div className="aspect-square bg-gray-100 dark:bg-gray-800 relative overflow-hidden">
                     {p.foto_url ? (
-                      <img
+                       <img
                         src={p.foto_url}
                         alt={p.descripcion}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
                       />
                     ) : (

@@ -174,6 +174,8 @@ export default function Inventario() {
                     <img
                       src={p.foto_url}
                       alt={p.descripcion}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
                     />
                   ) : (
