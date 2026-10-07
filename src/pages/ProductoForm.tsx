@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { CATEGORIAS, UNIDADES, type Familia } from '../lib/types'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Lightbox } from '../components/Lightbox'
+import { comprimirImagen } from '../lib/comprimirImagen'
 
 export default function ProductoForm() {
   const { sku: skuParam } = useParams()
@@ -91,8 +92,9 @@ export default function ProductoForm() {
       // Sube la foto a través de la Edge Function "subir-foto", que la
       // manda a Cloudflare R2 con las credenciales seguras del servidor
       // (nunca expuestas aquí en el navegador).
+      const archivoComprimido = await comprimirImagen(fotoArchivo)
       const formData = new FormData()
-      formData.append('archivo', fotoArchivo)
+      formData.append('archivo', archivoComprimido)
       formData.append('sku', sku)
 
       const { data: funcionData, error: uploadError } = await supabase.functions.invoke('subir-foto', {
